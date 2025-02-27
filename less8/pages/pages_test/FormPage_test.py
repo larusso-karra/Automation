@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from less8.pages.FormPage import FormPage
+from FormPage import FormPage
 
 
 @pytest.fixture(scope="module")
@@ -36,20 +36,12 @@ def test_fill_and_submit_form(browser):
     form_page.submit_form()
 
     # Проверки полей
-    wait = WebDriverWait(browser, 10)
-
     # Проверка ошибки на поле Zip Code
-    zip_code_error = wait.until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "#zipCode.invalid"))
-    )
-    assert zip_code_error.is_displayed(), "Поле Zip Code должно быть подсвечено красным."
+    assert form_page.check_zip_code_error(), "Поле Zip Code должно быть подсвечено красным."
 
     # Проверка правильности остальных полей
     other_fields_valid = browser.find_elements(By.CSS_SELECTOR, "input.valid")
     assert len(other_fields_valid) == 9, "Остальные поля должны быть подсвечены зеленым."
 
     # Дополнительная проверка успешного заполнения
-    success_message = wait.until(
-        EC.presence_of_element_located((By.ID, "result"))
-    )
-    assert success_message.text == "Success!", "Не удалось успешно отправить форму."
+    assert form_page.get_success_message_text() == "Success!", "Не удалось успешно отправить форму."
